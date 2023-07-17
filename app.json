@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "firebase_auth",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -17,6 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "usesAppleSignIn":true,
       "infoPlist": {
         "SKAdNetworkItems": [
           {
@@ -51,7 +52,8 @@
           "clientToken": "d231e606dc349f7e76a43ecc9c5e792b",
           "displayName": "Firebase_Auth"
         }
-      ]
+      ],
+      ["expo-apple-authentication"]
     ],
     "extra": {
       "eas": {
