@@ -23,5 +23,5 @@ const auth = getAuth(app)
 //android
 //636314185870-ai2t8aqqfl0a3f4918d0sdbbgol67ldr.apps.googleusercontent.com
 
-export default app
+export default auth
 

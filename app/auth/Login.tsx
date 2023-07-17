@@ -7,16 +7,74 @@ import {
   Pressable,
 } from "react-native";
 import { FormField,  StyledButton } from "../../components";
+import { useEffect, useState } from "react";
 import { COLOR, ICONS } from "../../constants";
 import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
-import app from '../../firebaseConfig';
+// import app from '../../firebaseConfig';
+import auth from "../../firebaseConfig";
 import {
   getAuth,
   signInWithCredential,
   FacebookAuthProvider,
+  GoogleAuthProvider,
+  onAuthStateChanged
 } from 'firebase/auth';
+import * as Google from 'expo-auth-session/providers/google'
+import * as Facebook from 'expo-auth-session/providers/facebook'
+import * as WebBrowser from 'expo-web-browser'
+import * as AppleAuthentication from 'expo-apple-authentication';
+import { useRouter } from "expo-router";
+
+WebBrowser.maybeCompleteAuthSession()
 
 export default function Login() {
+
+  const [isAvailable, setIsAvailable] = useState(false)
+
+  //connect to google
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    iosClientId:'636314185870-4hg7qbjhsoov3vpd4n3029n1qvpu8lqm.apps.googleusercontent.com',
+    androidClientId:'636314185870-ai2t8aqqfl0a3f4918d0sdbbgol67ldr.apps.googleusercontent.com'
+  })
+
+  const router = useRouter()
+
+  //check if apple authentication is available for ios platform
+  useEffect(() => {
+    const checkAvailability = async () => {
+      const isAppleAvailable = await AppleAuthentication.isAvailableAsync()
+      setIsAvailable(isAppleAvailable)
+    }
+    checkAvailability()
+  }, [])
+
+  //Google sign in authentication
+  useEffect(() => {
+    if(response?.type === 'success'){
+      const {id_token} = response.params
+      const credential = GoogleAuthProvider.credential(id_token)
+      signInWithCredential(auth, credential)
+    }
+
+    const sub = onAuthStateChanged(auth, async (user) =>{
+      if(user){
+      console.log('user from google', user)
+      }else{
+        console.log('user not authenticated')
+      }
+    })
+  
+      return () => sub()
+  }, [response])
+
+  const handleGoogleAuth = async () => {
+    const result = await promptAsync()
+    if(result.type === 'success'){
+      router.push('/auth/ConfirmAuth')
+    }
+  }
+
+//Facebook Authentication
   const signInWithFB = async () => {
     // Attempt login with permissions
     const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
@@ -28,25 +86,46 @@ export default function Login() {
     if (!data) {
       throw 'Something went wrong obtaining access token';
     }
-    
-    const auth = getAuth(app);
-
     // Create a Firebase credential with the AccessToken
     const facebookAuthProvider = FacebookAuthProvider.credential(data.accessToken);
-    // console.log("provider ",facebookAuthProvider);
-    // const credential = facebookAuthProvider.credential(data.accessToken);
-    // Sign-in with credential from the Facebook user.
     signInWithCredential(auth, facebookAuthProvider)
-    .then(() => {
-
+    .then((response) => {
+      console.log('facebook user 2',response.user)
+      router.push('/auth/ConfirmAuth')
     })
     .catch(error => {
       // Handle Errors here.]
       console.log(error);
     });
-
-
   }
+
+  // const getAppleAuth = () => {
+  //   return <AppleAuthentication.AppleAuthenticationButton
+  //   buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+  //   buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+  //   cornerRadius={5}
+  //   onPress={async () => {
+  //     try {
+  //       const credential = await AppleAuthentication.signInAsync({
+  //         requestedScopes: [
+  //           AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+  //           AppleAuthentication.AppleAuthenticationScope.EMAIL,
+  //         ],
+  //       });
+  //       // signed in
+  //       console.log(credential)
+  //     } catch (e:any) {
+  //       if (e.code === 'ERR_REQUEST_CANCELED') {
+  //         // handle that the user canceled the sign-in flow
+  //       } else {
+  //         // handle other errors
+  //       }
+  //     }
+  //   }}
+  //   style={{width:'30%', height:50}}
+  // />
+  // }
+
   return (
     <>
       <SafeAreaView style={styles.wrapper}>
@@ -66,12 +145,13 @@ export default function Login() {
             </View>
 
             <View style={styles.media}>
+              {/* {
+                isAvailable ?  getAppleAuth() : <Text>Not available</Text>
+              } */}
+            
+
               <Pressable
-                style={[styles.mediaIcon, { backgroundColor: "black" }]}
-              >
-                <ICONS.Apple />
-              </Pressable>
-              <Pressable
+              onPress={handleGoogleAuth}
                 style={[
                   styles.mediaIcon,
                   {

@@ -36,6 +36,7 @@
         <data android:scheme="com.richard.firebaseauth"/>
         <data android:scheme="fb706717644548177"/>
         <data android:scheme="exp+firebaseauth"/>
+        <data android:scheme="firebase_auth"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>
