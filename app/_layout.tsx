@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { ActivityIndicator } from "react-native";
+import { View } from "react-native";
 import {
   useFonts,
   Outfit_300Light,
@@ -7,6 +7,14 @@ import {
   Outfit_600SemiBold,
   Outfit_500Medium,
 } from "@expo-google-fonts/outfit";
+import { SplashScreen } from "expo-router";
+import { useCallback } from "react";
+
+SplashScreen.preventAutoHideAsync()
+
+export const unstable_settings = {
+  initialRouteName:'/auth'
+}
 
 export default function RootLayout() {
   let [fontsLoaded] = useFonts({
@@ -16,11 +24,20 @@ export default function RootLayout() {
     Outfit_500Medium,
   });
 
-  if (!fontsLoaded) {
-    return <ActivityIndicator />;
-  }
+  const onLayoutView = useCallback(async () => {
+    if(fontsLoaded){
+      await SplashScreen.hideAsync()
+    }
+  },[fontsLoaded])
+
+
+  if (!fontsLoaded) return null
 
   return (
-    <Stack screenOptions={{headerShown:false}}/>
+    <View onLayout={onLayoutView} style={{flex:1}}>
+    <Stack screenOptions={{headerShown:false}}>
+      <Stack.Screen name='auth'/>
+    </Stack>
+    </View>
   );
 }

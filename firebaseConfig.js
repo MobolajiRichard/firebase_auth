@@ -17,11 +17,5 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app)
 
-//ios
-//636314185870-4hg7qbjhsoov3vpd4n3029n1qvpu8lqm.apps.googleusercontent.com
-
-//android
-//636314185870-ai2t8aqqfl0a3f4918d0sdbbgol67ldr.apps.googleusercontent.com
-
 export default auth
 
